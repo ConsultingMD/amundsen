@@ -1,0 +1,45 @@
+app: amundsen
+team: data-eng
+iamRole: amundsen
+webApps:
+  - name: amundsen-frontend
+    iamRole: amundsen
+    image: 311088406905.dkr.ecr.us-east-1.amazonaws.com/amundsen-frontend
+    command: /usr/local/bin/with-secrets
+    args:
+      - "python3"
+      - "amundsen_application/wsgi.py"
+workerApps:
+  - name: worker
+    image: 311088406905.dkr.ecr.us-east-1.amazonaws.com/amundsen-search
+    iamRole: amundsen
+    replicas: 1
+    command: "/usr/local/bin/with-secrets"
+    args:
+      - "python3"
+      - "search_service/search_wsgi.py"
+    resources:
+      requests:
+        memory: 3Gi
+    securityGroups:
+      default:
+        - vpc
+        - hq  
+  - name: worker
+    image: 311088406905.dkr.ecr.us-east-1.amazonaws.com/amundsen-metadata
+    iamRole: amundsen
+    replicas: 1
+    command: "/usr/local/bin/with-secrets"
+    args:
+      - "python3"
+      - "metadata_service/metadata_wsgi.py"
+    resources:
+      requests:
+        memory: 3Gi
+    securityGroups:
+      default:
+        - vpc
+        - hq
+continuousDeployment:
+  checks:
+    - build

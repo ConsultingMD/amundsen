@@ -1,0 +1,29 @@
+version: 2.1
+
+workflows:
+  build:
+    jobs:
+      - build:
+          context:
+            - ecr
+
+jobs:
+  build:
+    docker:
+      - image: $ECR_ENDPOINT/image-builder:master
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.8
+      - run:
+          name: Build and push
+          command: |
+            build-and-push --image amundsen-search --file Dockerfile.search.public --build-dir .
+      - run:
+          name: Build and push
+          command: |
+            build-and-push --image amundsen-metadata --file Dockerfile.metadata.public --build-dir .
+      - run:
+          name: Build and push
+          command: |
+            build-and-push --image amundsen-frontend --file Dockerfile.frontend.public --build-dir .
